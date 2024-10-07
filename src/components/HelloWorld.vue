@@ -1,10 +1,10 @@
 <template>
   <v-container>
-    <v-card elevation="2">
+    <v-card elevation="3">
       <v-col >
-        <h3 class="my-4 mx-4">LIBROS</h3>
+        <h3 style="color:#cfaeef" class="my-4 mx-4">LIBROS<v-icon class="ml-2" color="#cfaeef">mdi-book-open-page-variant</v-icon></h3>
         <v-text-field v-model="form.name" class="mx-4" filled shaped label="Nombre del lbro" style="max-width: 600px;"></v-text-field>
-        <v-btn class="mx-4" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef" style="color:#ffffff;">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+        <v-btn class="mx-4 button" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
       </v-col>
     </v-card>
 
@@ -14,8 +14,8 @@
             <v-data-table class="mx-4" :loading="loadingBooks" :headers="headers" :items="books" :search="search" 
             hide-default-footer :page.sync="page" @page-count="pageCount = $event" loading-text="Cargando datos...">
                 <template slot="item.actions" slot-scope="{ item }">
-                    <v-icon @click="deleteBook(item.id)">mdi-delete</v-icon>
-                    <v-icon class="ml-1" @click="editBook(item.id)">mdi-pencil</v-icon>
+                    <v-icon color="#cfaeef" class="ml-1" @click="editBook(item.id)">mdi-pencil</v-icon>
+                    <v-icon color="#cfaeef" @click="deleteBook(item.id)">mdi-delete</v-icon>
                 </template>
             </v-data-table>
             <hr class="mt-0 mx-4">
@@ -27,31 +27,21 @@
        </v-col>
     </v-card>
 
-    <v-dialog
-      v-model="dialog"
-      persistent
-      max-width="400"
-    >
+    <v-dialog v-model="dialog" max-width="400">
       <v-card>
         <v-card-title class="text-h5">
           Editar libro
         </v-card-title>
+
         <v-card-text>En esta sección se podra editar el nombre del libro.</v-card-text>
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-container>
             <v-row>
-              <v-col
-                cols="12"
-                sm="12"
-                md="12"
-              >
-                <v-text-field filled shaped v-model="getbookEdit.name"
-                  label="Nombre libro"
-                  required
-                ></v-text-field>
-
-                <v-btn @click="updateBook()" :loading="loadignEditBook" color="#cfaeef">Guardar<v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+              <v-col cols="12" sm="12" md="12">
+                <v-text-field filled shaped v-model="getbookEdit.name" label="Nombre libro"></v-text-field>
+                <v-btn class="button" @click="updateBook()" :loading="loadignEditBook" color="#cfaeef">Guardar<v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
               </v-col>
             </v-row>
           </v-container>
@@ -228,3 +218,9 @@ import axios from '@/axios.js';
     }
   }
 </script>
+
+<style scoped>
+.button{
+    color:#ffffff;
+}
+</style>
