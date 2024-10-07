@@ -1,24 +1,24 @@
 <template>
   <v-container>
     <v-card elevation="2">
-      <v-col align="center">
-        <h3 class="my-4">LIBROS</h3>
+      <v-col >
+        <h3 class="my-4 mx-4">LIBROS</h3>
         <v-text-field v-model="form.name" class="mx-4" filled shaped label="Nombre del lbro" style="max-width: 600px;"></v-text-field>
-        <v-btn @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef" style="color:#ffffff;">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+        <v-btn class="mx-4" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef" style="color:#ffffff;">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
       </v-col>
     </v-card>
 
     <v-card elevation="2">
        <v-col>
-        <v-text-field v-model="search" color="#cfaeef" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
-            <v-data-table :loading="loadingBooks" :headers="headers" :items="books" :search="search" 
+        <v-text-field class="mx-4" v-model="search" color="#cfaeef" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+            <v-data-table class="mx-4" :loading="loadingBooks" :headers="headers" :items="books" :search="search" 
             hide-default-footer :page.sync="page" @page-count="pageCount = $event" loading-text="Cargando datos...">
                 <template slot="item.actions" slot-scope="{ item }">
                     <v-icon @click="deleteBook(item.id)">mdi-delete</v-icon>
                     <v-icon class="ml-1" @click="editBook(item.id)">mdi-pencil</v-icon>
                 </template>
             </v-data-table>
-            <hr class="mt-0">
+            <hr class="mt-0 mx-4">
 
             <div class="text-center pt-2 pb-3">
                 <v-pagination v-model="page" :length="pageCount" :total-visible="9">
