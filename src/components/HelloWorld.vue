@@ -1,58 +1,230 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <v-container>
+    <v-card elevation="2">
+      <v-col align="center">
+        <h3 class="my-4">LIBROS</h3>
+        <v-text-field v-model="form.name" class="mx-4" filled shaped label="Nombre del lbro" style="max-width: 600px;"></v-text-field>
+        <v-btn @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef" style="color:#ffffff;">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+      </v-col>
+    </v-card>
+
+    <v-card elevation="2">
+       <v-col>
+        <v-text-field v-model="search" color="#cfaeef" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+            <v-data-table :loading="loadingBooks" :headers="headers" :items="books" :search="search" 
+            hide-default-footer :page.sync="page" @page-count="pageCount = $event" loading-text="Cargando datos...">
+                <template slot="item.actions" slot-scope="{ item }">
+                    <v-icon @click="deleteBook(item.id)">mdi-delete</v-icon>
+                    <v-icon class="ml-1" @click="editBook(item.id)">mdi-pencil</v-icon>
+                </template>
+            </v-data-table>
+            <hr class="mt-0">
+
+            <div class="text-center pt-2 pb-3">
+                <v-pagination v-model="page" :length="pageCount" :total-visible="9">
+                </v-pagination>
+            </div>
+       </v-col>
+    </v-card>
+
+    <v-dialog
+      v-model="dialog"
+      persistent
+      max-width="400"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Editar libro
+        </v-card-title>
+        <v-card-text>En esta sección se podra editar el nombre del libro.</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-container>
+            <v-row>
+              <v-col
+                cols="12"
+                sm="12"
+                md="12"
+              >
+                <v-text-field filled shaped v-model="getbookEdit.name"
+                  label="Nombre libro"
+                  required
+                ></v-text-field>
+
+                <v-btn @click="updateBook()" :loading="loadignEditBook" color="#cfaeef">Guardar<v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+  </v-container>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+import axios from '@/axios.js';
+  export default {
+    name: 'HelloWorld',
+
+    data() {
+        return {
+            form:{
+                name:null
+            },
+            headers: [
+                {
+                    text: 'Libro',
+                    value: 'name',
+                    sortable: false
+                },
+                {
+                    text: 'Acciones',
+                    value: 'actions',
+                    sortable: false
+                }
+            ],
+            books:[],
+            loadingBooks:false,
+            dialog:false,
+            getbookEdit:[],
+            loadingCreateBook:false,
+            loadignEditBook:false,
+            search:'',
+            page: 1,
+            pageCount: 0,
+            itemsPerPage: 6,
+        }
+    },
+    created(){
+        this.getBooks();
+    },
+    methods:{
+        async createBook(){
+            this.loadingCreateBook=true;
+            const response = await axios.post('/create-book',this.form);
+            if(response.data.success){
+                this.$swal({
+                    icon: 'success',
+                    title: '¡Libro creado!',
+                    text: 'Se ha creado libro ade manera correcta',
+                    confirmButtonText: 'Aceptar',
+                    willClose: () => {
+                        console.log(response)
+                        this.getBooks();
+                        this.form.name=null
+                        this.loadingCreateBook=false;
+                    }
+                })
+            }else if(response.data.error){
+                this.$swal({
+                    icon: 'error',
+                    title: 'Error al crear libro',
+                    text: response.data.message,
+                    confirmButtonText: 'Aceptar',
+                    willClose: () => {
+                        this.getBooks();
+                        this.form.name=null
+                        this.loadingCreateBook=false;
+                    }
+                })
+            }
+                
+        },
+        async getBooks(){
+            this.loadingBooks=true;
+            try{
+                const response = await axios.get('/get-books');
+                this.books = response.data.books;
+            } catch (error) {
+                console.error(error);
+            } finally {
+                this.loadingBooks = false;
+            }
+        },
+       
+        async deleteBook(id) {
+            const result = await this.$swal({
+                title: "¿Estás seguro?",
+                text: "Al eliminar este libro no podrá recuperar esta información!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#cfaeef",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, ¡elimínalo!"
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await axios.post('/delete-book', { id: id });
+                    if (response.data.success) {
+                        await this.$swal({
+                            icon: 'success',
+                            title: '¡Libro eliminado!',
+                            text: 'Se ha eliminado el libro de manera correcta',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        this.getBooks();
+                    }
+                } catch (error) {
+                    console.error("Error al eliminar el libro:", error);
+                    await this.$swal({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo eliminar el libro. Inténtalo de nuevo.'
+                    });
+                }
+            }
+        },
+        async editBook(id){
+            this.dialog=true
+            const response = await axios.post('/get-book',{id:id});
+            this.getbookEdit = response.data.book;
+        },
+        async updateBook(){
+            this.loadignEditBook = true;
+            let formDataEdit = new FormData()
+            formDataEdit.append("id", this.getbookEdit.id)
+            formDataEdit.append("name", this.getbookEdit.name)
+            try {
+                const response = await axios.post('/edit-book', formDataEdit, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data' // Asegúrate de especificar el tipo de contenido
+                    }
+                });
+
+                if(response.data.success){
+                    this.$swal({
+                        icon: 'success',
+                        title: '¡Libro modificado!',
+                        text: 'Se ha actualizado libro ade manera correcta',
+                        confirmButtonText: 'Aceptar',
+                        willClose: () => {
+                            console.log(response)
+                            this.getBooks();
+                            this.dialog=false
+                            this.loadignEditBook = false;
+                        }
+                    })
+                }else if(response.data.error){
+                    this.$swal({
+                    icon: 'error',
+                    title: 'Error al editar libro',
+                    text: response.data.message,
+                    confirmButtonText: 'Aceptar',
+                    willClose: () => {
+                        this.getBooks();
+                        this.loadignEditBook=false;
+                    }
+                })
+                }
+            } catch (error) {
+                console.error("Error updating book:", error);
+                // Manejo de errores según sea necesario
+            }
+        }
+
+    }
+  }
+</script>
