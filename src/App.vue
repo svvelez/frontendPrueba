@@ -2,20 +2,20 @@
   <v-app>
     <v-main>
       <v-container>
-        <hello-world /> <!-- Usar el componente HelloWorld aquí -->
+        <BookComponent />
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'; // Importa el componente
+import BookComponent from './components/BookComponent.vue';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld, // Registra el componente
+    BookComponent, // Registra el componente
   },
 
   data: () => ({

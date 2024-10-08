@@ -3,8 +3,11 @@
     <v-card elevation="3">
       <v-col >
         <h3 style="color:#cfaeef" class="my-4 mx-4">LIBROS<v-icon class="ml-2" color="#cfaeef">mdi-book-open-page-variant</v-icon></h3>
-        <v-text-field v-model="form.name" class="mx-4" filled shaped label="Nombre del lbro" style="max-width: 600px;"></v-text-field>
-        <v-btn class="mx-4 button" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+        <v-text-field v-model="form.name" :error-messages="NameErrors.length > 0 ? NameErrors : []" class="mx-4" filled shaped label="Nombre del lbro" style="max-width: 600px;">
+            <template v-slot:error="{ message }">
+                <div class="error-message">{{ message }}</div>
+            </template>
+        </v-text-field>        <v-btn class="mx-4 button" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
       </v-col>
     </v-card>
 
@@ -55,8 +58,10 @@
 <script>
 
 import axios from '@/axios.js';
+import {required} from 'vuelidate/lib/validators'
+import alphaOnly from "../validators/alphaOnly";
   export default {
-    name: 'HelloWorld',
+    name: 'BookComponent',
 
     data() {
         return {
@@ -85,6 +90,27 @@ import axios from '@/axios.js';
             page: 1,
             pageCount: 0,
             itemsPerPage: 6,
+            error: false,
+            error_msg: '',
+            validations: {
+                name: true
+            },
+        }
+    },
+    validations: {
+        form: {
+            name: {
+                alphaOnly,
+                required
+            }
+        }
+    },
+    computed: {
+        NameErrors () {
+            return [
+                !this.$v.form.name.alphaOnly && 'Debe ser solo letras',
+                !this.$v.form.name.required && 'Es un campo obligatorio'
+            ].filter(Boolean)
         }
     },
     created(){
@@ -147,7 +173,7 @@ import axios from '@/axios.js';
 
             if (result.isConfirmed) {
                 try {
-                    const response = await axios.post('/delete-book', { id: id });
+                    const response = await axios.delete(`/delete-book?id=${id}`); 
                     if (response.data.success) {
                         await this.$swal({
                             icon: 'success',
@@ -166,7 +192,8 @@ import axios from '@/axios.js';
                     });
                 }
             }
-        },
+        }
+    },
         async editBook(id){
             this.dialog=true
             const response = await axios.post('/get-book',{id:id});
@@ -216,7 +243,7 @@ import axios from '@/axios.js';
         }
 
     }
-  }
+  
 </script>
 
 <style scoped>

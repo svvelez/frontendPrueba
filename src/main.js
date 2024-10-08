@@ -6,6 +6,9 @@ import Vuesax from 'vuesax'
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'vuesax/dist/vuesax.css'
 import 'sweetalert2/dist/sweetalert2.min.css';
+import Vuelidate from 'vuelidate'
+
+Vue.use(Vuelidate)
 
 Vue.config.productionTip = false
 Vue.use(Vuesax, {
