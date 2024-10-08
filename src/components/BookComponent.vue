@@ -7,11 +7,12 @@
             <template v-slot:error="{ message }">
                 <div class="error-message">{{ message }}</div>
             </template>
-        </v-text-field>        <v-btn class="mx-4 button" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
+        </v-text-field>        
+        <v-btn class="mx-4 button mt-2 mb-2" @click="createBook()" :loading="loadingCreateBook" elevation="2" color="#cfaeef">Guardar <v-icon class="ml-1">mdi-content-save</v-icon></v-btn>
       </v-col>
     </v-card>
 
-    <v-card elevation="2">
+    <v-card elevation="2" class="mt-2">
        <v-col>
         <v-text-field class="mx-4" v-model="search" color="#cfaeef" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
             <v-data-table class="mx-4" :loading="loadingBooks" :headers="headers" :items="books" :search="search" 
